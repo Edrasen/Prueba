@@ -1,12 +1,16 @@
-import React,  { useState } from 'react'
+import React,  { useState, useEffect } from 'react'
 
 const API = process.env.REACT_APP_API;
+
+
 
 export const Users = () => {
 
     const [ name, setName ] = useState('');
     const [ email, setEmail ] = useState('');
     const [ password, setPassword ] = useState('');
+
+    const [ users, setUsers ] = useState([]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -23,6 +27,32 @@ export const Users = () => {
         })
         const data = await resp.json();
         console.log(data);
+    }
+
+    const getUsers = async () => {
+        const resp = await fetch(`${ API }/users`)
+        const data = await resp.json();
+        setUsers(data);
+    }
+    
+
+    useEffect(()=> {
+        getUsers();
+    }, [])
+
+
+    const deleteUser = async (id) => {
+        const resp = await fetch(`${API}/users/${id}`, {
+            method : 'DELETE'
+        });
+        const data = await resp.json();        
+        console.log(data);
+        await getUsers();
+    }
+
+
+    const updateUser = (id) => {
+        console.log(id);
     }
 
     return (
@@ -63,7 +93,40 @@ export const Users = () => {
 
                 </form>
             </div>
-            <div className="col-md-8">
+            <div className="col-md-6">
+                <table className="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Operations</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {users.map(user => (
+                        <tr key={user._id}>
+                            <td>{user._id}</td>
+                            <td>{user.name}</td>
+                            <td>{user.email}</td>
+                            <td>
+                            <button 
+                                className="btn btn-secondary btn-sm btn-block"
+                                onClick={() => updateUser(user._id)}
+                                >
+                                Edit
+                            </button>
+                            <button 
+                                className="btn btn-danger btn-sm btn-block"
+                                onClick={() => deleteUser(user._id)}
+                                >
+                                Delete
+                            </button>
+                            </td>
+                        </tr>
+                    ))}
+                    </tbody>
+                </table>
 
             </div>
         </div>
