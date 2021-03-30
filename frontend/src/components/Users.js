@@ -1,8 +1,8 @@
 import React,  { useState, useEffect } from 'react'
+import { Modal, Button } from 'react-bootstrap'
 
 const API = process.env.REACT_APP_API;
-
-
+  
 
 export const Users = () => {
 
@@ -27,6 +27,7 @@ export const Users = () => {
         })
         const data = await resp.json();
         console.log(data);
+        await getUsers();
     }
 
     const getUsers = async () => {
@@ -42,17 +43,21 @@ export const Users = () => {
 
 
     const deleteUser = async (id) => {
-        const resp = await fetch(`${API}/users/${id}`, {
-            method : 'DELETE'
-        });
-        const data = await resp.json();        
-        console.log(data);
-        await getUsers();
+        const userResponse = window.confirm('Do you really want to delete the user?')
+        if(userResponse){
+            const resp = await fetch(`${API}/users/${id}`, {
+                method : 'DELETE'
+            });
+            const data = await resp.json();        
+            console.log(data);
+            await getUsers();
+        }
     }
 
-
-    const updateUser = (id) => {
-        console.log(id);
+    const updateUser = async (id) => {
+        const resp = await fetch(`${API}/users/${id}`)
+        const data = await resp.json();
+        console.log(data);
     }
 
     return (
@@ -87,7 +92,7 @@ export const Users = () => {
                             placeholder="Password"
                         />
                     </div>
-                    <button className="btn btn-primary btn-block">
+                    <button className="btn btn-primary">
                         Create
                     </button>
 
@@ -111,7 +116,7 @@ export const Users = () => {
                             <td>{user.email}</td>
                             <td>
                             <button 
-                                className="btn btn-secondary btn-sm btn-block"
+                                className="btn btn-success btn-sm btn-block"
                                 onClick={() => updateUser(user._id)}
                                 >
                                 Edit
@@ -130,5 +135,6 @@ export const Users = () => {
 
             </div>
         </div>
+    
     )
 }

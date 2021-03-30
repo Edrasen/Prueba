@@ -4,7 +4,9 @@ import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 
-import 'bootswatch/dist/lux/bootstrap.min.css'
+import 'bootswatch/dist/cosmo/bootstrap.min.css'
+
+//lumen
 
 ReactDOM.render(
   <React.StrictMode>
