@@ -1,4 +1,5 @@
 import React,  { useState, useEffect } from 'react'
+import  firebase  from './../firebase'
 
 const API = process.env.REACT_APP_API;
   
@@ -15,24 +16,11 @@ export const Users = () => {
 
     const [ users, setUsers ] = useState([]);
 
-    const handleSubmit = async (e) => {
+    const handleSubmit =  (e) => {
         e.preventDefault();
-        if(!editing){
-            const resp = await fetch(`${ API }/users`,{
-                method : 'POST',
-                headers:{
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    name,
-                    email,
-                    password
-                })
-            })
-            const data = await resp.json();
-            console.log(data);
-        } else {
-            const resp = await fetch(`${ API }/users/${id}`, {
+        if(editing)
+        {
+            const resp = fetch(`${ API }/users/${id}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json'
@@ -43,16 +31,56 @@ export const Users = () => {
                     password
                 })
             })
-            const data = await resp.json();
-            console.log(data);
-            setEditing(false);
-            setId('');
+            resp.then ((res) => {
+                res.json();
+                setEditing(false);
+                setId('');
+                getUsers();
+            })
+                            
+            setName('');
+            setPassword('');
+            setEmail('');
+
+        }else{
+            firebase.auth().createUserWithEmailAndPassword(email, password)
+            .then((userCredential) => {
+                var user = userCredential.user;
+            
+                    const resp = fetch(`${ API }/users`,{
+                        method : 'POST',
+                        headers:{
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            name,
+                            email,
+                            password
+                        })
+                    })
+                    resp.then((res) => {
+                        res.json();
+                        getUsers();
+                    })    
+                
+                getUsers();
+                
+                setName('');
+                setPassword('');
+                setEmail('');
+            })
+            .catch((error) => {
+                var errorCode = error.code;
+                var errorMessage = error.message;
+                console.log(error);
+                window.alert('Correo en uso!');
+                getUsers();
+                
+                setName('');
+                setPassword('');
+                setEmail('');
+            });
         }
-        await getUsers();
-        
-        setName('');
-        setPassword('');
-        setEmail('');
     }
 
     const getUsers = async () => {
