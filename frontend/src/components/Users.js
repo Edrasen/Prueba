@@ -1,5 +1,4 @@
 import React,  { useState, useEffect } from 'react'
-import { Modal, Button } from 'react-bootstrap'
 
 const API = process.env.REACT_APP_API;
   
@@ -10,24 +9,50 @@ export const Users = () => {
     const [ email, setEmail ] = useState('');
     const [ password, setPassword ] = useState('');
 
+    const [ editing, setEditing] = useState(false);
+
+    const [ id, setId ] = useState();
+
     const [ users, setUsers ] = useState([]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        const resp = await fetch(`${ API }/users`,{
-            method : 'POST',
-            headers:{
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                name,
-                email,
-                password
+        if(!editing){
+            const resp = await fetch(`${ API }/users`,{
+                method : 'POST',
+                headers:{
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    name,
+                    email,
+                    password
+                })
             })
-        })
-        const data = await resp.json();
-        console.log(data);
+            const data = await resp.json();
+            console.log(data);
+        } else {
+            const resp = await fetch(`${ API }/users/${id}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    name,
+                    email, 
+                    password
+                })
+            })
+            const data = await resp.json();
+            console.log(data);
+            setEditing(false);
+            setId('');
+        }
         await getUsers();
+        
+        setName('');
+        setPassword('');
+        setEmail('');
     }
 
     const getUsers = async () => {
@@ -54,10 +79,18 @@ export const Users = () => {
         }
     }
 
-    const updateUser = async (id) => {
-        const resp = await fetch(`${API}/users/${id}`)
+    const editUser = async (id) => {
+        const resp = await fetch(`${API}/user/${id}`)
         const data = await resp.json();
-        console.log(data);
+        
+        setEditing(true);
+        setId(id);
+
+        //console.log(data);
+        setName(data.name);
+        setEmail(data.email);
+        setPassword(data.password);
+
     }
 
     return (
@@ -93,7 +126,7 @@ export const Users = () => {
                         />
                     </div>
                     <button className="btn btn-primary">
-                        Create
+                        {editing? 'Update': 'Create'}
                     </button>
 
                 </form>
@@ -117,7 +150,7 @@ export const Users = () => {
                             <td>
                             <button 
                                 className="btn btn-success btn-sm btn-block"
-                                onClick={() => updateUser(user._id)}
+                                onClick={() => editUser(user._id)}
                                 >
                                 Edit
                             </button>
