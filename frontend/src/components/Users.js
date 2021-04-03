@@ -45,7 +45,6 @@ export const Users = () => {
         }else{
             firebase.auth().createUserWithEmailAndPassword(email, password)
             .then((userCredential) => {
-                var user = userCredential.user;
             
                     const resp = fetch(`${ API }/users`,{
                         method : 'POST',
@@ -70,9 +69,8 @@ export const Users = () => {
                 setEmail('');
             })
             .catch((error) => {
-                var errorCode = error.code;
                 var errorMessage = error.message;
-                console.log(error);
+                console.log(errorMessage);
                 window.alert('Correo en uso!');
                 getUsers();
                 
